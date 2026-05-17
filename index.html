@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>CC ライセンス クイズ</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #252836;
+    --accent: #f7c948;
+    --accent2: #ff6b6b;
+    --accent3: #4ecdc4;
+    --accent4: #a29bfe;
+    --text: #eef0f8;
+    --text-muted: #8b90a7;
+    --correct: #26de81;
+    --wrong: #ff6b6b;
+    --border: rgba(255,255,255,0.08);
+    --radius: 16px;
+    --shadow: 0 8px 32px rgba(0,0,0,0.4);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Noto Sans JP', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 20px 16px 40px;
+    background-image:
+      radial-gradient(ellipse at 20% 10%, rgba(247,201,72,0.08) 0%, transparent 50%),
+      radial-gradient(ellipse at 80% 80%, rgba(78,205,196,0.06) 0%, transparent 50%);
+  }
+
+  /* ─── HEADER ─── */
+  header {
+    width: 100%;
+    max-width: 680px;
+    text-align: center;
+    margin-bottom: 32px;
+    animation: fadeDown 0.6s ease both;
+  }
+  .logo-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 6px;
+  }
+  .cc-badge {
+    font-family: 'Space Mono', monospace;
+    font-size: 13px;
+    font-weight: 700;
+    background: var(--accent);
+    color: #000;
+    padding: 3px 9px;
+    border-radius: 6px;
+    letter-spacing: 0.05em;
+  }
+  h1 {
+    font-size: clamp(22px, 5vw, 30px);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent3) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  .subtitle {
+    font-size: 13px;
+    color: var(--text-muted);
+    margin-top: 4px;
+  }
+
+  /* ─── PROGRESS ─── */
+  .progress-bar-wrap {
+    width: 100%;
+    max-width: 680px;
+    margin-bottom: 20px;
+    animation: fadeDown 0.6s 0.1s ease both;
+  }
+  .progress-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    font-family: 'Space Mono', monospace;
+  }
+  .progress-track {
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent3));
+    border-radius: 99px;
+    transition: width 0.5s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* ─── SCORE ─── */
+  .score-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 24px;
+    animation: fadeDown 0.6s 0.15s ease both;
+  }
+  .score-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 99px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-family: 'Space Mono', monospace;
+  }
+  .score-chip .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+  }
+  .dot-correct { background: var(--correct); }
+  .dot-wrong   { background: var(--wrong); }
+
+  /* ─── CARD ─── */
+  .card {
+    width: 100%;
+    max-width: 680px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 28px 24px;
+    box-shadow: var(--shadow);
+    animation: slideUp 0.5s ease both;
+  }
+
+  .q-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    font-family: 'Space Mono', monospace;
+    background: rgba(247,201,72,0.12);
+    padding: 4px 10px;
+    border-radius: 6px;
+    margin-bottom: 14px;
+  }
+
+  .question-text {
+    font-size: clamp(15px, 3.5vw, 17px);
+    line-height: 1.75;
+    color: var(--text);
+    margin-bottom: 28px;
+    font-weight: 400;
+  }
+  .question-text strong {
+    color: var(--accent);
+    font-weight: 700;
+  }
+
+  /* ─── ICON BUTTONS ─── */
+  .icons-section {
+    margin-bottom: 24px;
+  }
+  .icons-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .icons-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+  @media(min-width: 480px) {
+    .icons-grid { grid-template-columns: repeat(4, 1fr); }
+  }
+
+  .icon-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px 8px;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    position: relative;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .icon-btn:hover {
+    border-color: var(--accent);
+    background: rgba(247,201,72,0.08);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 20px rgba(247,201,72,0.15);
+  }
+  .icon-btn:active { transform: scale(0.96); }
+  .icon-btn.selected {
+    border-color: var(--accent3);
+    background: rgba(78,205,196,0.12);
+    box-shadow: 0 0 0 3px rgba(78,205,196,0.2);
+  }
+  .icon-btn.correct-pick {
+    border-color: var(--correct);
+    background: rgba(38,222,129,0.12);
+    box-shadow: 0 0 0 3px rgba(38,222,129,0.25);
+    animation: pulse-correct 0.5s ease;
+  }
+  .icon-btn.wrong-pick {
+    border-color: var(--wrong);
+    background: rgba(255,107,107,0.12);
+    box-shadow: 0 0 0 3px rgba(255,107,107,0.2);
+    animation: shake 0.4s ease;
+  }
+  .icon-btn.should-be-selected {
+    border-color: var(--correct);
+    background: rgba(38,222,129,0.08);
+    opacity: 0.7;
+  }
+
+  .icon-svg {
+    width: 48px;
+    height: 48px;
+  }
+  .icon-name {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+    text-align: center;
+    line-height: 1.3;
+  }
+  .icon-desc {
+    font-size: 10px;
+    color: var(--text-muted);
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  /* check mark overlay */
+  .icon-btn .check-overlay {
+    display: none;
+    position: absolute;
+    top: 6px; right: 6px;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+  }
+  .icon-btn.selected .check-overlay {
+    display: flex;
+    background: var(--accent3);
+    color: #000;
+  }
+
+  /* ─── SUBMIT BTN ─── */
+  .submit-btn {
+    width: 100%;
+    padding: 16px;
+    background: linear-gradient(135deg, var(--accent) 0%, #e6b800 100%);
+    color: #000;
+    font-size: 16px;
+    font-weight: 900;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    letter-spacing: 0.03em;
+    transition: all 0.2s ease;
+    font-family: 'Noto Sans JP', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    margin-top: 4px;
+  }
+  .submit-btn:hover { opacity: 0.92; transform: translateY(-1px); }
+  .submit-btn:active { transform: scale(0.98); }
+  .submit-btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+  /* ─── FEEDBACK ─── */
+  .feedback {
+    margin-top: 20px;
+    padding: 18px 20px;
+    border-radius: var(--radius);
+    border: 1px solid;
+    animation: fadeUp 0.35s ease both;
+  }
+  .feedback.correct {
+    background: rgba(38,222,129,0.1);
+    border-color: var(--correct);
+  }
+  .feedback.wrong {
+    background: rgba(255,107,107,0.1);
+    border-color: var(--wrong);
+  }
+  .feedback-title {
+    font-size: 18px;
+    font-weight: 900;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .feedback.correct .feedback-title { color: var(--correct); }
+  .feedback.wrong   .feedback-title { color: var(--wrong); }
+  .feedback-body {
+    font-size: 14px;
+    line-height: 1.7;
+    color: var(--text);
+  }
+  .feedback-body em {
+    color: var(--accent);
+    font-style: normal;
+    font-weight: 700;
+  }
+  .hint-steps {
+    margin-top: 10px;
+    padding-left: 0;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .hint-steps li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 13px;
+    line-height: 1.5;
+  }
+  .hint-steps li::before {
+    content: '▸';
+    color: var(--accent3);
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  /* ─── NEXT BTN ─── */
+  .next-btn {
+    display: none;
+    width: 100%;
+    margin-top: 14px;
+    padding: 15px;
+    background: var(--surface2);
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 700;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Noto Sans JP', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .next-btn:hover { border-color: var(--accent3); background: rgba(78,205,196,0.08); }
+  .next-btn.visible { display: block; animation: fadeUp 0.4s 0.1s ease both; }
+
+  /* ─── RESULT SCREEN ─── */
+  .result-screen {
+    width: 100%;
+    max-width: 680px;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+    animation: slideUp 0.6s ease both;
+  }
+  .result-screen.visible { display: flex; }
+
+  .result-hero {
+    text-align: center;
+    padding: 40px 24px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    width: 100%;
+  }
+  .result-emoji { font-size: 64px; margin-bottom: 12px; }
+  .result-title {
+    font-size: 28px;
+    font-weight: 900;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 8px;
+  }
+  .result-score-big {
+    font-size: 56px;
+    font-weight: 900;
+    font-family: 'Space Mono', monospace;
+    color: var(--accent);
+    line-height: 1;
+  }
+  .result-score-label { font-size: 14px; color: var(--text-muted); margin-top: 4px; }
+  .result-msg { font-size: 15px; color: var(--text-muted); margin-top: 16px; line-height: 1.7; }
+
+  .result-breakdown {
+    width: 100%;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 20px;
+  }
+  .result-breakdown h3 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .breakdown-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 14px;
+  }
+  .breakdown-item:last-child { border-bottom: none; }
+  .breakdown-status {
+    font-size: 18px;
+    width: 24px;
+    flex-shrink: 0;
+    text-align: center;
+  }
+  .breakdown-license {
+    font-family: 'Space Mono', monospace;
+    font-size: 12px;
+    background: var(--surface2);
+    padding: 3px 8px;
+    border-radius: 6px;
+    color: var(--accent);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .breakdown-q { color: var(--text-muted); line-height: 1.4; font-size: 12px; }
+
+  .retry-btn {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, var(--accent), var(--accent3));
+    color: #000;
+    font-size: 17px;
+    font-weight: 900;
+    border: none;
+    border-radius: var(--radius);
+    cursor: pointer;
+    letter-spacing: 0.02em;
+    transition: all 0.2s ease;
+    font-family: 'Noto Sans JP', sans-serif;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .retry-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeDown {
+    from { opacity:0; transform: translateY(-12px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+  @keyframes slideUp {
+    from { opacity:0; transform: translateY(20px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+  @keyframes fadeUp {
+    from { opacity:0; transform: translateY(10px); }
+    to   { opacity:1; transform: translateY(0); }
+  }
+  @keyframes shake {
+    0%,100% { transform: translateX(0); }
+    20%      { transform: translateX(-8px); }
+    40%      { transform: translateX(8px); }
+    60%      { transform: translateX(-5px); }
+    80%      { transform: translateX(5px); }
+  }
+  @keyframes pulse-correct {
+    0%   { box-shadow: 0 0 0 0 rgba(38,222,129,0.6); }
+    70%  { box-shadow: 0 0 0 12px rgba(38,222,129,0); }
+    100% { box-shadow: 0 0 0 0 rgba(38,222,129,0); }
+  }
+  @keyframes pop {
+    0%   { transform: scale(1); }
+    50%  { transform: scale(1.15); }
+    100% { transform: scale(1); }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-row">
+    <span class="cc-badge">CC</span>
+    <span style="font-size:13px;color:var(--text-muted);font-family:'Space Mono',monospace;">LICENSE</span>
+  </div>
+  <h1>クリエイティブ・コモンズ クイズ</h1>
+  <p class="subtitle">高校 情報Ⅰ ／ 著作権ユニット</p>
+</header>
+
+<!-- PROGRESS -->
+<div class="progress-bar-wrap" id="progressWrap">
+  <div class="progress-info">
+    <span id="progressLabel">問題 1 / 6</span>
+    <span id="progressPct">0%</span>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" id="progressFill" style="width:0%"></div>
+  </div>
+</div>
+
+<!-- SCORE -->
+<div class="score-row" id="scoreRow">
+  <div class="score-chip">
+    <span class="dot dot-correct"></span>
+    <span id="correctCount">正解 0</span>
+  </div>
+  <div class="score-chip">
+    <span class="dot dot-wrong"></span>
+    <span id="wrongCount">不正解 0</span>
+  </div>
+</div>
+
+<!-- QUIZ CARD -->
+<div class="card" id="quizCard">
+  <div class="q-label" id="qLabel">QUESTION 1</div>
+  <p class="question-text" id="questionText"></p>
+
+  <div class="icons-section">
+    <div class="icons-label">CCマークを選んでください（複数選択可）</div>
+    <div class="icons-grid" id="iconsGrid"></div>
+  </div>
+
+  <button class="submit-btn" id="submitBtn" disabled onclick="handleSubmit()">この組み合わせで回答する</button>
+
+  <div id="feedbackArea"></div>
+  <button class="next-btn" id="nextBtn" onclick="nextQuestion()">次の問題へ →</button>
+</div>
+
+<!-- RESULT SCREEN -->
+<div class="result-screen" id="resultScreen">
+  <div class="result-hero">
+    <div class="result-emoji" id="resultEmoji">🎉</div>
+    <div class="result-title">クイズ終了！</div>
+    <div class="result-score-big" id="resultScoreBig">0/6</div>
+    <div class="result-score-label">正解数</div>
+    <p class="result-msg" id="resultMsg"></p>
+  </div>
+  <div class="result-breakdown" id="resultBreakdown">
+    <h3>📋 問題の振り返り</h3>
+    <div id="breakdownList"></div>
+  </div>
+  <button class="retry-btn" onclick="restartQuiz()">🔄 もう一度チャレンジ</button>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════
+const CC_MARKS = [
+  {
+    id: 'BY',
+    name: '表示',
+    abbr: 'BY',
+    desc: '作者のクレジット表示',
+    svg: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-svg">
+      <circle cx="24" cy="24" r="22" fill="#f7c948" opacity="0.18"/>
+      <circle cx="24" cy="24" r="22" stroke="#f7c948" stroke-width="2"/>
+      <!-- head -->
+      <circle cx="24" cy="12" r="4.5" fill="#f7c948"/>
+      <!-- body: trapezoid wide at top (shoulders), narrow at bottom -->
+      <polygon points="16,18 32,18 28,36 20,36" fill="#f7c948"/>
+      <!-- legs together: two close lines straight down -->
+      <line x1="22" y1="36" x2="22" y2="43" stroke="#f7c948" stroke-width="2.8" stroke-linecap="round"/>
+      <line x1="26" y1="36" x2="26" y2="43" stroke="#f7c948" stroke-width="2.8" stroke-linecap="round"/>
+    </svg>`
+  },
+  {
+    id: 'SA',
+    name: '継承',
+    abbr: 'SA',
+    desc: '同じ条件で共有',
+    svg: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-svg">
+      <circle cx="24" cy="24" r="22" fill="#4ecdc4" opacity="0.18"/>
+      <circle cx="24" cy="24" r="22" stroke="#4ecdc4" stroke-width="2"/>
+      <!-- circular refresh arrow: arc from top-right going clockwise, leaving gap at top-left for arrowhead -->
+      <path d="M33 17 A13 13 0 1 0 35 27" stroke="#4ecdc4" stroke-width="3" stroke-linecap="round" fill="none"/>
+      <!-- arrowhead pointing counter-clockwise at the start of the arc (top-right) -->
+      <polygon points="33,17 27,14 30,22" fill="#4ecdc4"/>
+    </svg>`
+  },
+  {
+    id: 'NC',
+    name: '非営利',
+    abbr: 'NC',
+    desc: '営利目的での利用不可',
+    svg: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-svg">
+      <circle cx="24" cy="24" r="22" fill="#ff6b6b" opacity="0.18"/>
+      <circle cx="24" cy="24" r="22" stroke="#ff6b6b" stroke-width="2"/>
+      <!-- dollar sign body: S-curve using paths -->
+      <path d="M30 17.5 C30 14.5 27.5 13 24 13 C20.5 13 18 15 18 18 C18 21 20 22.5 24 24 C28 25.5 30 27 30 30 C30 33 27.5 35 24 35 C20.5 35 18 33.5 18 30.5" stroke="#ff6b6b" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+      <!-- vertical line through $ -->
+      <line x1="24" y1="10" x2="24" y2="38" stroke="#ff6b6b" stroke-width="2" stroke-linecap="round"/>
+      <!-- slash -->
+      <line x1="13" y1="11" x2="35" y2="37" stroke="#ff6b6b" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>`
+  },
+  {
+    id: 'ND',
+    name: '改変禁止',
+    abbr: 'ND',
+    desc: '改変・翻案の禁止',
+    svg: `<svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-svg">
+      <circle cx="24" cy="24" r="22" fill="#a29bfe" opacity="0.18"/>
+      <circle cx="24" cy="24" r="22" stroke="#a29bfe" stroke-width="2"/>
+      <!-- equals sign: two horizontal lines centered in circle -->
+      <line x1="14" y1="20" x2="34" y2="20" stroke="#a29bfe" stroke-width="3.5" stroke-linecap="round"/>
+      <line x1="14" y1="28" x2="34" y2="28" stroke="#a29bfe" stroke-width="3.5" stroke-linecap="round"/>
+    </svg>`
+  }
+];
+
+const QUESTIONS = [
+  {
+    id: 1,
+    pattern: 'CC BY',
+    question: '著作者名を載せて利用するなら、作品を自由に改変したり、<strong>営利目的で利用</strong>したりすることも制限なく認めたい。\nこの場合、どのCCマークの組み合わせが適当か答えなさい。',
+    answer: ['BY'],
+    hint: [
+      '「表示（BY）」だけで十分です。',
+      '改変も営利利用も制限しないので、SA・NC・ND は必要ありません。',
+      'BY は全ライセンスの共通条件ですが、単独で使うと最も制限が少ないライセンスになります。'
+    ]
+  },
+  {
+    id: 2,
+    pattern: 'CC BY-SA',
+    question: '著作者名を載せて利用し、もし作品を改変して新しい作品を作った場合には、<strong>元の作品と同じライセンス条件で公開</strong>することを条件に、営利目的での利用も認めたい。\nこの場合、どのCCマークの組み合わせが適当か答えなさい。',
+    answer: ['BY', 'SA'],
+    hint: [
+      '「継承（SA）」は「改変後も同じ条件で公開」を意味します。',
+      '営利利用は認めるため「非営利（NC）」は不要です。',
+      '改変は許可するので「改変禁止（ND）」も不要です。',
+      '正解は BY＋SA の組み合わせです。'
+    ]
+  },
+  {
+    id: 3,
+    pattern: 'CC BY-ND',
+    question: '著作者名を載せて<strong>改変せずに</strong>利用するなら営利目的でも利用を認めたい。\nこの場合、どのCCマークの組み合わせが適当か答えなさい。',
+    answer: ['BY', 'ND'],
+    hint: [
+      '「改変禁止（ND）」は、作品をそのまま（原型のまま）使うことだけ許可します。',
+      '営利利用は認めるので「非営利（NC）」は不要です。',
+      'ND がある場合、SA は意味をなさないため組み合わせません。',
+      '正解は BY＋ND の組み合わせです。'
+    ]
+  },
+  {
+    id: 4,
+    pattern: 'CC BY-NC',
+    question: '著作者名を載せて利用し、作品の改変も認めるが、<strong>営利目的での利用（販売や広告など）は一切認めない</strong>ようにしたい。\nこの場合、どのCCマークの組み合わせが適当か答えなさい。',
+    answer: ['BY', 'NC'],
+    hint: [
+      '「非営利（NC）」は商業目的での利用を禁止します。',
+      '改変は許可するので「改変禁止（ND）」は不要です。',
+      '継承条件は付けていないので「継承（SA）」も不要です。',
+      '正解は BY＋NC の組み合わせです。'
+    ]
+  },
+  {
+    id: 5,
+    pattern: 'CC BY-NC-SA',
+    question: '著作者名を載せて利用し、<strong>改変した場合には同じライセンスで公開</strong>することを求めるが、<strong>営利目的での利用は認めない</strong>ようにしたい。\nこの場合、どのCCマークの組み合わせが適当か答えなさい。',
+    answer: ['BY', 'NC', 'SA'],
+    hint: [
+      '「非営利（NC）」で商業利用を禁止します。',
+      '「継承（SA）」で改変後も同じ条件での公開を義務付けます。',
+      '改変は許可するので「改変禁止（ND）」は不要です。',
+      '正解は BY＋NC＋SA の3つの組み合わせです。'
+    ]
+  },
+  {
+    id: 6,
+    pattern: 'CC BY-NC-ND',
+    question: '著作者名を載せて利用することを条件とし、<strong>営利目的での利用も、作品を少しでも改変して利用することも一切認めない</strong>ようにしたい（そのままの形でのみ利用を許可する）。\nこの場合、どのCCマークの組み合わせが適当か答えなさい。',
+    answer: ['BY', 'NC', 'ND'],
+    hint: [
+      '「非営利（NC）」で商業利用を禁止します。',
+      '「改変禁止（ND）」で作品の変更を禁止します。',
+      'ND がある場合、SA は使用しません（改変自体を禁じているため）。',
+      '正解は BY＋NC＋ND の3つの組み合わせです。'
+    ]
+  }
+];
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+let shuffledQs = [];
+let currentIdx = 0;
+let selected = new Set();
+let correctTotal = 0;
+let wrongTotal = 0;
+let results = [];
+let answered = false;
+let attemptCount = 0;
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+function shuffle(arr) {
+  return [...arr].sort(() => Math.random() - 0.5);
+}
+
+function restartQuiz() {
+  shuffledQs = shuffle(QUESTIONS);
+  currentIdx = 0;
+  correctTotal = 0;
+  wrongTotal = 0;
+  results = [];
+  document.getElementById('resultScreen').classList.remove('visible');
+  document.getElementById('quizCard').style.display = '';
+  document.getElementById('progressWrap').style.display = '';
+  document.getElementById('scoreRow').style.display = '';
+  updateScore();
+  loadQuestion();
+}
+
+function loadQuestion() {
+  answered = false;
+  attemptCount = 0;
+  selected.clear();
+
+  const q = shuffledQs[currentIdx];
+  const total = shuffledQs.length;
+
+  // progress
+  const pct = Math.round((currentIdx / total) * 100);
+  document.getElementById('progressLabel').textContent = `問題 ${currentIdx + 1} / ${total}`;
+  document.getElementById('progressPct').textContent = pct + '%';
+  document.getElementById('progressFill').style.width = pct + '%';
+
+  // label
+  document.getElementById('qLabel').textContent = `QUESTION ${currentIdx + 1}`;
+
+  // question
+  document.getElementById('questionText').innerHTML = q.question.replace(/\n/g, '<br>');
+
+  // icons
+  const grid = document.getElementById('iconsGrid');
+  grid.innerHTML = '';
+  const shuffledMarks = shuffle(CC_MARKS);
+  shuffledMarks.forEach(mark => {
+    const btn = document.createElement('button');
+    btn.className = 'icon-btn';
+    btn.dataset.id = mark.id;
+    btn.innerHTML = `
+      <span class="check-overlay">✓</span>
+      ${mark.svg}
+      <span class="icon-name">${mark.name}（${mark.abbr}）</span>
+      <span class="icon-desc">${mark.desc}</span>
+    `;
+    btn.addEventListener('click', () => toggleMark(mark.id, btn));
+    grid.appendChild(btn);
+  });
+
+  // reset
+  document.getElementById('feedbackArea').innerHTML = '';
+  document.getElementById('submitBtn').disabled = true;
+  document.getElementById('submitBtn').textContent = 'この組み合わせで回答する';
+  const nb = document.getElementById('nextBtn');
+  nb.classList.remove('visible');
+
+  // animate card
+  const card = document.getElementById('quizCard');
+  card.style.animation = 'none';
+  void card.offsetWidth;
+  card.style.animation = 'slideUp 0.45s ease both';
+}
+
+function toggleMark(id, btn) {
+  if (answered) return;
+  if (selected.has(id)) {
+    selected.delete(id);
+    btn.classList.remove('selected');
+  } else {
+    selected.add(id);
+    btn.classList.add('selected');
+  }
+  document.getElementById('submitBtn').disabled = selected.size === 0;
+}
+
+// ═══════════════════════════════════════
+// SUBMIT
+// ═══════════════════════════════════════
+function handleSubmit() {
+  if (answered) return;
+  const q = shuffledQs[currentIdx];
+  const sel = [...selected].sort();
+  const ans = [...q.answer].sort();
+
+  const isCorrect = sel.length === ans.length && sel.every(s => ans.includes(s));
+  attemptCount++;
+
+  // highlight buttons
+  const btns = document.querySelectorAll('.icon-btn');
+  btns.forEach(btn => {
+    const bid = btn.dataset.id;
+    if (isCorrect) {
+      if (selected.has(bid)) btn.classList.add('correct-pick');
+    } else {
+      if (selected.has(bid) && ans.includes(bid)) {
+        btn.classList.add('correct-pick');
+      } else if (selected.has(bid) && !ans.includes(bid)) {
+        btn.classList.add('wrong-pick');
+      } else if (!selected.has(bid) && ans.includes(bid)) {
+        btn.classList.add('should-be-selected');
+      }
+    }
+  });
+
+  if (isCorrect) {
+    correctTotal++;
+    answered = true;
+    results.push({ q, correct: true, attempts: attemptCount });
+    updateScore();
+    showFeedback(true, q);
+    document.getElementById('submitBtn').disabled = true;
+    document.getElementById('nextBtn').classList.add('visible');
+  } else {
+    wrongTotal++;
+    updateScore();
+    showFeedback(false, q);
+    // allow retry
+    setTimeout(() => {
+      selected.clear();
+      const btns = document.querySelectorAll('.icon-btn');
+      btns.forEach(btn => {
+        btn.classList.remove('selected','correct-pick','wrong-pick','should-be-selected');
+      });
+      document.getElementById('submitBtn').textContent = 'もう一度回答する';
+      document.getElementById('submitBtn').disabled = true;
+    }, 2200);
+  }
+}
+
+function showFeedback(correct, q) {
+  const area = document.getElementById('feedbackArea');
+  if (correct) {
+    area.innerHTML = `
+      <div class="feedback correct">
+        <div class="feedback-title">⭕ 正解です！</div>
+        <div class="feedback-body">
+          正解は <em>${q.pattern}</em> です。<br>
+          ${q.answer.length === 1 ? 'BYマークのみで' : `BY＋${q.answer.filter(a=>a!=='BY').join('＋')} の組み合わせで`}表現します。
+        </div>
+      </div>`;
+  } else {
+    const hintItems = q.hint.map(h => `<li>${h}</li>`).join('');
+    area.innerHTML = `
+      <div class="feedback wrong">
+        <div class="feedback-title">❌ 惜しい！ヒントを確認しよう</div>
+        <div class="feedback-body">
+          <ul class="hint-steps">${hintItems}</ul>
+          <div style="margin-top:12px;font-size:12px;color:var(--text-muted);">
+            少し待ってから、もう一度選んでみてください。
+          </div>
+        </div>
+      </div>`;
+  }
+}
+
+function updateScore() {
+  document.getElementById('correctCount').textContent = `正解 ${correctTotal}`;
+  document.getElementById('wrongCount').textContent = `不正解 ${wrongTotal}`;
+}
+
+// ═══════════════════════════════════════
+// NEXT / RESULT
+// ═══════════════════════════════════════
+function nextQuestion() {
+  currentIdx++;
+  if (currentIdx >= shuffledQs.length) {
+    showResult();
+  } else {
+    loadQuestion();
+  }
+}
+
+function showResult() {
+  document.getElementById('quizCard').style.display = 'none';
+  document.getElementById('progressWrap').style.display = 'none';
+  document.getElementById('scoreRow').style.display = 'none';
+
+  const total = shuffledQs.length;
+  const score = results.filter(r => r.correct).length;
+  const pct = Math.round((score / total) * 100);
+
+  let emoji, msg;
+  if (pct === 100) {
+    emoji = '🏆'; msg = '全問正解！CCライセンスの達人です！';
+  } else if (pct >= 80) {
+    emoji = '🎉'; msg = 'すばらしい！もう少しで完璧です。';
+  } else if (pct >= 60) {
+    emoji = '👍'; msg = '半分以上正解！苦手なパターンを復習しよう。';
+  } else {
+    emoji = '📚'; msg = 'まだ発展途上！ヒントを参考に再挑戦してみよう。';
+  }
+
+  document.getElementById('resultEmoji').textContent = emoji;
+  document.getElementById('resultScoreBig').textContent = `${score}/${total}`;
+  document.getElementById('resultMsg').textContent = msg;
+
+  const list = document.getElementById('breakdownList');
+  list.innerHTML = '';
+  results.forEach(r => {
+    const status = r.correct ? (r.attempts === 1 ? '⭕' : '🔄') : '❌';
+    const ansStr = r.q.answer.join(' ＋ ');
+    list.innerHTML += `
+      <div class="breakdown-item">
+        <span class="breakdown-status">${status}</span>
+        <span class="breakdown-license">${r.q.pattern}</span>
+        <span class="breakdown-q">${r.q.question.replace(/<[^>]*>/g,'').replace(/\n/g,' ').substring(0,40)}…</span>
+      </div>`;
+  });
+
+  // update progress to 100%
+  document.getElementById('progressFill').style.width = '100%';
+
+  const rs = document.getElementById('resultScreen');
+  rs.classList.add('visible');
+}
+
+// ═══════════════════════════════════════
+// START
+// ═══════════════════════════════════════
+restartQuiz();
+</script>
+</body>
+</html>
